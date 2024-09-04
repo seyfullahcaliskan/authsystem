@@ -27,6 +27,7 @@ public class WebSecurityConfiguration {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Bean
         public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -44,6 +45,7 @@ public class WebSecurityConfiguration {
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/login").permitAll()
+                                .requestMatchers("/api/users/register").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 )
