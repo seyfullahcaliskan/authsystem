@@ -15,75 +15,68 @@ import java.util.Date;
 @Service
 public class TokenManager {
 
-    // Key statik ve final olarak tanımlanır, bu durumda anahtar sabit olmalı
-    private static final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final int validity = 5 * 60 * 1000; // Token geçerlilik süresi 5 dakika
+    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final long VALIDITY_PERIOD_MS = 5 * 60 * 1000L; // 5 dakika
 
     @Autowired
     private UserRepository userRepository;
 
     public String generateToken(String username) {
         UserEntity user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("role", user.getRole())
-                .claim("mail", user.getEmail())
+                .claim("email", user.getEmail())
                 .setIssuer("AuthSystemApp")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + validity))
-                .signWith(secretKey) // Kullanılan imza anahtarı
+                .setExpiration(new Date(System.currentTimeMillis() + VALIDITY_PERIOD_MS))
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
-    public boolean tokenValidate(String token) {
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token);
-            return !isExpired(token);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return !isTokenExpired(claims);
         } catch (Exception e) {
-            e.printStackTrace(); // Detaylı hata logu
             return false;
         }
     }
 
-    public String getUserFromToken(String token) {
+    public String getUsernameFromToken(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
             return claims.getSubject();
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
 
-    public boolean isExpired(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody();
-            return claims.getExpiration().before(new Date());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
-        }
+    private boolean isTokenExpired(Claims claims) {
+        return claims.getExpiration().before(new Date());
     }
 
     public Claims getClaimsFromToken(String token) {
-        // Token'dan tüm claim'leri almak için JWT'yi doğrular
         try {
-            return Jwts.parser()
-                    .setSigningKey(secretKey)
+            return Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            e.printStackTrace(); // Hata durumunda detaylı log
-            return null; // Hata durumunda null döndürülür
+            return null;
         }
     }
 }

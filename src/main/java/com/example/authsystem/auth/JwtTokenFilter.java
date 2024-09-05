@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,19 +37,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
-                username = tokenManager.getUserFromToken(token);
-                if (tokenManager.tokenValidate(token)) {
-                    String role = tokenManager.getClaimsFromToken(token).get("role", String.class);
+                username = tokenManager.getUsernameFromToken(token);
+                if (username != null && tokenManager.validateToken(token)) {
+                    Claims claims = tokenManager.getClaimsFromToken(token);
+                    String role = claims.get("role", String.class);
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Authentication failed: ", e); // Daha uygun hata loglama
             }
         }
         filterChain.doFilter(request, response);
     }
 }
-

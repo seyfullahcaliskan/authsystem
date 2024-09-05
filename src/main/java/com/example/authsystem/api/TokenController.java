@@ -4,31 +4,36 @@ import com.example.authsystem.auth.TokenManager;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
 
 @RestController
+@RequestMapping("/api/v1/token")
 public class TokenController {
 
+    private final TokenManager tokenManager;
+
     @Autowired
-    private TokenManager tokenManager;
+    public TokenController(TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
+    }
 
-    @GetMapping("/token-info")
-    public ResponseEntity<?> getTokenInfo(@RequestHeader("Authorization") String token) {
-        String cleanedToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-
-        if (tokenManager.tokenValidate(cleanedToken)) {
-            Claims claims = tokenManager.getClaimsFromToken(cleanedToken);
-
-            return ResponseEntity.ok(new TokenInfoResponse(
+    @GetMapping("/info")
+    public ResponseEntity<TokenInfoResponse> getTokenInfo(@RequestHeader("Authorization") String tokenHeader) {
+        String token = tokenHeader.startsWith("Bearer ") ? tokenHeader.substring(7) : tokenHeader;
+        if (tokenManager.validateToken(token)) {
+            Claims claims = tokenManager.getClaimsFromToken(token);
+            TokenInfoResponse response = new TokenInfoResponse(
                     claims.getSubject(),
-                    claims.get("mail", String.class),
+                    claims.get("email", String.class),
                     claims.get("role", String.class)
-            ));
+            );
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
