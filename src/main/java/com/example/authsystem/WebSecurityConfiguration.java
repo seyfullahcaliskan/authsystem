@@ -44,6 +44,7 @@ public class WebSecurityConfiguration {
         http.csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/api/tests").permitAll()
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/users/register").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
