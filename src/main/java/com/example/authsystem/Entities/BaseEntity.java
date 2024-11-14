@@ -1,5 +1,6 @@
 package com.example.authsystem.Entities;
 
+import com.example.authsystem.Enums.StatusEnum;
 import jakarta.persistence.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.sql.Timestamp;
@@ -17,7 +18,7 @@ public class BaseEntity {
     private UUID etag;
 
     @Column(name = "status", nullable = false)
-    private short status = 3;
+    private StatusEnum status = StatusEnum.fromJson(StatusEnum.ACTIVE.getId());
 
     @Column(name = "date_of_recorded", nullable = false, updatable = false)
     private Timestamp dateOfRecorded;
@@ -70,11 +71,11 @@ public class BaseEntity {
         this.etag = etag;
     }
 
-    public short getStatus() {
+    public StatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(short status) {
+    public void setStatus(StatusEnum status) {
         this.status = status;
     }
 
@@ -82,16 +83,32 @@ public class BaseEntity {
         return dateOfRecorded;
     }
 
+    public void setDateOfRecorded(Timestamp dateOfRecorded) {
+        this.dateOfRecorded = dateOfRecorded;
+    }
+
     public String getUserWhoRecorded() {
         return userWhoRecorded;
+    }
+
+    public void setUserWhoRecorded(String userWhoRecorded) {
+        this.userWhoRecorded = userWhoRecorded;
     }
 
     public Timestamp getDateOfLastUpdated() {
         return dateOfLastUpdated;
     }
 
+    public void setDateOfLastUpdated(Timestamp dateOfLastUpdated) {
+        this.dateOfLastUpdated = dateOfLastUpdated;
+    }
+
     public String getUserWhoLastUpdated() {
         return userWhoLastUpdated;
+    }
+
+    public void setUserWhoLastUpdated(String userWhoLastUpdated) {
+        this.userWhoLastUpdated = userWhoLastUpdated;
     }
 
     public long getCounterOfUniqueData() {

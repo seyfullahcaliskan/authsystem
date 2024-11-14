@@ -1,27 +1,70 @@
 package com.example.authsystem.Enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum StatusEnum {
-    KAPALI(1),
-    PASIF(2),
-    AKTIF(3),
-    IPTAL(4);
+    CLOSED(1, "Kapalı"),
+    PASSIVE(2, "Pasif"),
+    ACTIVE(3, "Aktif"),
+    CANCELLED(4, "İptal");
 
-    private final int value;
+    private final int id;
+    private final String value;
 
-    StatusEnum(int value) {
+    StatusEnum(int id, String value) {
+        this.id = id;
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
+    @JsonValue
+    public StatusRepresentation toJson() {
+        return new StatusRepresentation(id, value);
     }
 
-    public static StatusEnum fromValue(int value) {
+    @JsonCreator
+    public static StatusEnum fromJson(@JsonProperty("id") int id) {
         for (StatusEnum status : StatusEnum.values()) {
-            if (status.value == value) {
+            if (status.id == id) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Bilinmeyen durum degeri: " + value);
+        throw new IllegalArgumentException("Bilinmeyen durum degeri: " + id);
+    }
+
+    public static StatusEnum fromValue(int id) {
+        for (StatusEnum status : StatusEnum.values()) {
+            if (status.id == id) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Bilinmeyen durum degeri: " + id);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static class StatusRepresentation {
+        private final int id;
+        private final String value;
+
+        public StatusRepresentation(int id, String value) {
+            this.id = id;
+            this.value = value;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }
