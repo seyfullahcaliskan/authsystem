@@ -1,10 +1,9 @@
 package com.example.authsystem.Controllers;
 
-import com.example.authsystem.DTO.PageRequestDTO;
+import com.example.authsystem.DTO.PagedResponseDTO;
 import com.example.authsystem.Entities.TestEntity;
 import com.example.authsystem.Services.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +18,8 @@ public class TestController {
     private TestService testService;
 
     @PostMapping("/paged")
-    public ResponseEntity<Page<TestEntity>> getAllTestsPaged(@RequestBody PageRequestDTO pagingRequest) {
-        Page<TestEntity> pagedTests = testService.getAllTestsPaged(pagingRequest);
+    public ResponseEntity<PagedResponseDTO<TestEntity>> getAllTestsPaged(@RequestBody PagedResponseDTO pagingRequest) {
+        PagedResponseDTO<TestEntity> pagedTests = testService.getAllTestsPaged(pagingRequest);
         return new ResponseEntity<>(pagedTests, HttpStatus.OK);
     }
 

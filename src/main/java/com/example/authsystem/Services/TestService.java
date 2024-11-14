@@ -1,6 +1,5 @@
 package com.example.authsystem.Services;
-
-import com.example.authsystem.DTO.PageRequestDTO;
+import com.example.authsystem.DTO.PagedResponseDTO;
 import com.example.authsystem.Entities.TestEntity;
 import com.example.authsystem.Enums.StatusEnum;
 import com.example.authsystem.Repositories.TestRepository;
@@ -21,10 +20,24 @@ public class TestService {
     @Autowired
     private TestRepository testRepository;
 
-    public Page<TestEntity> getAllTestsPaged(PageRequestDTO pagingRequest) {
-        Pageable pageable = PageRequest.of(pagingRequest.getPage(), pagingRequest.getSize());
+    public PagedResponseDTO<TestEntity> getAllTestsPaged(PagedResponseDTO pagingRequest) {
+        Pageable pageable = PageRequest.of(pagingRequest.getPageNumber(), pagingRequest.getPageSize());
         Specification<TestEntity> spec = createSpecification(pagingRequest.getFilter());
-        return testRepository.findAll(spec, pageable);
+        Page<TestEntity> pagedTests = testRepository.findAll(spec, pageable);
+
+        // Convert Page<TestEntity> to PagedResponseDTO<TestEntity>
+        List<TestEntity> content = pagedTests.getContent();
+        PagedResponseDTO<TestEntity> response = new PagedResponseDTO<>(
+                content,
+                pagedTests.getNumber(),
+                pagedTests.getSize(),
+                pagedTests.getTotalElements(),
+                pagedTests.getTotalPages(),
+                pagedTests.isLast(),
+                pagingRequest.getFilter()  // Include the filter from the request
+        );
+
+        return response;
     }
 
     /**
