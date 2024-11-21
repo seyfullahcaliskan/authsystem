@@ -17,6 +17,7 @@ public class BaseEntity {
     @Column(name = "etag", nullable = false)
     private UUID etag;
 
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusEnum status = StatusEnum.fromJson(StatusEnum.ACTIVE.getId());
 

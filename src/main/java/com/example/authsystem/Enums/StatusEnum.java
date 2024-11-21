@@ -1,14 +1,16 @@
 package com.example.authsystem.Enums;
 
+import com.example.authsystem.Utils.IdentifiableEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum StatusEnum {
+public enum StatusEnum implements IdentifiableEnum {
+    CANCELLED(4, "İptal"),
     CLOSED(1, "Kapalı"),
     PASSIVE(2, "Pasif"),
-    ACTIVE(3, "Aktif"),
-    CANCELLED(4, "İptal");
+    ACTIVE(3, "Aktif");
+
 
     private final int id;
     private final String value;
@@ -42,6 +44,7 @@ public enum StatusEnum {
         throw new IllegalArgumentException("Bilinmeyen durum degeri: " + id);
     }
 
+    @Override
     public int getId() {
         return id;
     }

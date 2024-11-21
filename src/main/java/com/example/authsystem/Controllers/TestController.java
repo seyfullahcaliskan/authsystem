@@ -57,4 +57,17 @@ public class TestController {
         testService.deleteTest(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<TestEntity>> findTests(@RequestBody Map<String, Object> filter) {
+        List<TestEntity> tests = testService.findTests(filter);
+        return new ResponseEntity<>(tests, HttpStatus.OK);
+    }
+
+    @PostMapping("/search/one")
+    public ResponseEntity<TestEntity> findTest(@RequestBody Map<String, Object> filter) {
+        Optional<TestEntity> testEntity = testService.findTest(filter);
+        return testEntity.map(test -> new ResponseEntity<>(test, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }
